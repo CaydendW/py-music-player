@@ -1,13 +1,7 @@
-import subprocess
-
-
 try:
    import os
    import argparse
-   import threading
-   import time
-
-   from googlesearch import search
+   import subprocess
 except ImportError as e:
    print("Not all dependencies have been installed! Exiting!")
    exit()
@@ -62,14 +56,14 @@ def mainloop():
          try:
             currplay = titlearray[int(cmdinput[1]) - 1]
 
-            threading.Thread(target=doplay, args=(resarray[int(cmdinput[1]) - 1],)).start()
+            doplay(resarray[int(cmdinput[1]) - 1])
          except IndexError:
             inp1 = input("Input video number > ")
             inp = resarray[int(inp1) - 1]
 
             currplay = titlearray[int(inp1) - 1]
 
-            threading.Thread(target=doplay, args=(inp,)).start()
+            doplay(inp)
          except NameError:
             print("You have not searched anything yet!")
 
@@ -176,9 +170,9 @@ def readandcheckconfig():
          exit()
 
 def doexit():
-   if (dotestmusic): dostopmusic()
    clear()
    print("\nExiting")
+   if (dotestmusic): dostopmusic()
    print("Goodbye!")
    exit()
 
@@ -212,8 +206,20 @@ def setupparser():
    else:
       clearbool = True
 
-   volume = args.volume
    results = args.results
+   volume = args.volume
+
+   if (int(volume) < 101 and int(volume) > -1):
+      pass
+   else:
+      print("Volume: arg too big/small!")
+      exit()
+      
+   if (int(results) > 0):
+      pass
+   else:
+      print("Results: too small!")
+      exit()
 
 def main():
    try:
