@@ -102,8 +102,16 @@ def mainloop():
             volume = int(cmdinput[1])
       
       elif (cmd == 'r'):
-         if (cmd )
-         results = cmdinput[1]
+         if (int(cmdinput[1]) > 5):
+            x = input("Are you sure you would like to make it this big. y/n: ")
+            if (x.lower() == 'y'):
+               results = int(cmdinput[1])
+            else:
+               pass
+         elif (int(cmdinput[1]) > 1 and int(cmdinput[1]) < 6):
+            results = int(cmdinput[1])
+         elif (0 >= int(cmdinput[1])):
+            print("Number too small")
       
       elif (cmd == 'q'):
          doexit()
