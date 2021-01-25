@@ -17,10 +17,14 @@ playarray = None
 volume = None
 results = None
 clearbool = None
+videobool = None
 
 def mainloop():
    global resarray
    global titlearray
+   global durationarray
+   global viewarray
+   global channelarray
    global currplay
    global volume
    global results
@@ -40,17 +44,38 @@ def mainloop():
          dohelp()
 
       elif (cmd == '?'):
-         titlearray = [0] * results
-
          if (len(cmdinput) > 1):
             del cmdinput[0]
             tmpresarray = dosearchyt(' '.join(cmdinput), results)
             resarray = tmpresarray['urls']
             titlearray = tmpresarray['titles']
+            channelarray = tmpresarray['channels']
+            viewarray = tmpresarray['views']
+            durationarray = tmpresarray['durations']
          else:
             tmpresarray = dosearchyt(input("Input search term > "), results)
             resarray = tmpresarray['urls']
             titlearray = tmpresarray['titles']
+            channelarray = tmpresarray['channels']
+            viewarray = tmpresarray['views']
+            durationarray = tmpresarray['durations']
+      
+      elif (cmd == '/'):
+         if (len(cmdinput) > 1):
+            del cmdinput[0]
+            tmpresarray = dosearchyt(' '.join(cmdinput), results)
+            resarray = tmpresarray['urls']
+            titlearray = tmpresarray['titles']
+            channelarray = tmpresarray['channels']
+            viewarray = tmpresarray['views']
+            durationarray = tmpresarray['durations']
+         else:
+            tmpresarray = dosearchyt(input("Input search term > "), results)
+            resarray = tmpresarray['urls']
+            titlearray = tmpresarray['titles']
+            channelarray = tmpresarray['channels']
+            viewarray = tmpresarray['views']
+            durationarray = tmpresarray['durations']
 
       elif (cmd == 'p'):
          if (dotestmusic): dostopmusic()
@@ -85,7 +110,7 @@ def mainloop():
          try:
             for i in range (len(titlearray)):
                print(i+1, end='')
-               print(". " + titlearray[i])
+               print('. %-80s %-30s %-20s %-16s' % (titlearray[i], channelarray[i], viewarray[i], durationarray[i]))
          except NameError:
             print("Nothing searched!")
       
@@ -125,10 +150,11 @@ def dohelp():
    <Key>   <Function>                                                      <Args>
 
    h   -   Print this help list                                            NONE
-   ?   -   Stop current song                                               NONE
+   s   -   Stop current song                                               NONE
    i   -   Print current info about current song and music stack           NONE
    q   -   Exit the program                                                NONE
-   s   -   Search for a specific term and add the results to the stack     Search term (String)
+   ?   -   Search for a specific term and add the results to the stack     Search term (String)
+   /   -   Same as ? (Search for song. Add to stack)                       Search term (String)
    p   -   Play Song                                                       Number of song (Int)
    v   -   Set volume in percent                                           Int (0 - 100)
    r   -   Set result amount (Warning more results = slower search)        Int
@@ -141,7 +167,10 @@ def dotestmusic():
       return False
 
 def doplay(url):
-   subprocess.Popen("nohup mpv --no-video --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
+   if (videobool):
+      subprocess.Popen("nohup mpv --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
+   else:
+      subprocess.Popen("nohup mpv --no-video --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
 
 def dostopmusic():
    os.system("killall mpv >/dev/null 2>&1")
@@ -150,28 +179,22 @@ def dosearchyt(query, num):
    resultarray = [0] * num
    ids = [0] * num
    titles = [0] * num
+   channels = [0] * num
+   durations = [0] * num
+   views = [0] * num
 
    results = YoutubeSearch(query, max_results=num).to_dict()
 
-   i = 0
-
    for i in range(num):
       ids[i] = results[i]['id']
-
-   i = 0
-
-   for i in range(num):
+      views[i] = results[i]['views']
       titles[i] = results[i]['title']
+      channels[i] = results[i]['channel']
+      durations[i] = results[i]['duration']
 
-   i = 0
+   for i in range(num): resultarray[i] = "https://www.youtube.com/watch?v=" + ids[i]
 
-   for i in range(num):
-      resultarray[i] = "https://www.youtube.com/watch?v=" + ids[i]
-
-   datadict = {
-      "urls": resultarray,
-      "titles": titles,
-   }
+   datadict = { "urls": resultarray, "titles": titles, "views": views, "channels": channels, "durations": durations }
 
    return datadict
 
@@ -208,11 +231,13 @@ def setupparser():
    global volume
    global results
    global clearbool
+   global videobool
 
    parser = argparse.ArgumentParser()
 
    parser.add_argument('--noclear', action='store_true', help="Prevent musicplayer.py from clearing console")
    parser.add_argument('--version', '-V', action='store_true', help="Print version and exit")
+   parser.add_argument('--video', action='store_true', help="Set video on")
 
    parser.add_argument('--volume', '-v', default=100, help="Set initial volume in percent (Default 100)")
    parser.add_argument('--results', '-r', default=3, help="Set initial amount of results (Default 3)")
@@ -227,6 +252,11 @@ def setupparser():
       clearbool = False
    else:
       clearbool = True
+
+   if (args.video):
+      videobool = True
+   else:
+      videobool = False
 
    results = args.results
    volume = args.volume
