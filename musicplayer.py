@@ -1,7 +1,10 @@
 try:
    import os
+   import json
    import argparse
    import subprocess
+
+   from youtube_search import YoutubeSearch
 except ImportError as e:
    print("Not all dependencies have been installed! Exiting!")
    exit()
@@ -41,12 +44,13 @@ def mainloop():
 
          if (len(cmdinput) > 1):
             del cmdinput[0]
-            resarray = dosearchyt(' '.join(cmdinput), results)
+            tmpresarray = dosearchyt(' '.join(cmdinput), results)
+            resarray = tmpresarray['urls']
+            titlearray = tmpresarray['titles']
          else:
-            resarray = dosearchyt(input("Input search term > "), results)
-
-         for url in resarray:
-            titlearray[resarray.index(url)] = gettitles(url)
+            tmpresarray = dosearchyt(input("Input search term > "), results)
+            resarray = tmpresarray['urls']
+            titlearray = tmpresarray['titles']
 
       elif (cmd == 'p'):
          if (dotestmusic): dostopmusic()
@@ -81,7 +85,7 @@ def mainloop():
          try:
             for i in range (len(titlearray)):
                print(i+1, end='')
-               print(". " + titlearray[i], end='')
+               print(". " + titlearray[i])
          except NameError:
             print("Nothing searched!")
       
@@ -110,6 +114,12 @@ def mainloop():
       elif (cmd == 'q'):
          doexit()
 
+def doserialize(inp):
+   return json.dumps(inp, indent=3)
+
+def dodeserialize(inp):
+   return json.loads(inp)
+
 def dohelp():
    print("""
    <Key>   <Function>                                                      <Args>
@@ -136,22 +146,34 @@ def doplay(url):
 def dostopmusic():
    os.system("killall mpv >/dev/null 2>&1")
 
-def gettitles(url):
-   return os.popen("youtube-dl --get-title " + url).read()
-
 def dosearchyt(query, num):
    resultarray = [0] * num
+   ids = [0] * num
+   titles = [0] * num
 
-   results = os.popen("youtube-dl ytsearch" + str(num) + ":\"" + query + "\" --get-id").read()
+   results = YoutubeSearch(query, max_results=num).to_dict()
 
-   resultarraytmp = results.split('\n')
-   del resultarraytmp[-1]
+   i = 0
 
-   for id in resultarraytmp:
-      resultarray[resultarraytmp.index(id)] = "https://www.youtube.com/watch?v=" + id
-   
-   return resultarray
-   
+   for i in range(num):
+      ids[i] = results[i]['id']
+
+   i = 0
+
+   for i in range(num):
+      titles[i] = results[i]['title']
+
+   i = 0
+
+   for i in range(num):
+      resultarray[i] = "https://www.youtube.com/watch?v=" + ids[i]
+
+   datadict = {
+      "urls": resultarray,
+      "titles": titles,
+   }
+
+   return datadict
 
 def readandcheckconfig():
    try:
