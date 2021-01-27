@@ -1,6 +1,3 @@
-from json import decoder
-
-
 try:
    import os
    import json
@@ -10,6 +7,7 @@ try:
    import argparse
    import subprocess
 
+   from json import decoder
    from youtube_search import YoutubeSearch
 except ImportError as e:
    print("Not all dependencies have been installed! Exiting!")
