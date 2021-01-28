@@ -246,66 +246,65 @@ def mainloop():
             index = -1
 
             playlistfuncs.listplaylists()
-            plname = input("Input playlist name > ")
-            
-            for i in range(len(playlistarray['playlists'])):
-               if (playlistarray['playlists'][i]['name'] == plname):
-                  index = i
-                  break
+            index = input("Input playlist name > ")
 
-            if (index == -1):
-               print("Playlist not found!")
-            else:
-               playlistfuncs.listsongs(index)
+            try:
+               index = int(index) - 1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  playlistfuncs.listsongs(index)
 
-               try:
-                  songname = int(input("Input song number > "))
-                  if (songname - 1 > len(playlistarray['playlists'][index]['songs'])):
-                     print("Not a valid song number!")
-                  else:
-                     del playlistarray['playlists'][index]['songs'][songname - 1]
-               except ValueError:
-                  print("Not valid song number!")
+                  try:
+                     songname = int(input("Input song number > "))
+                     if (songname - 1 > len(playlistarray['playlists'][index]['songs'])):
+                        print("Not a valid song number!")
+                     else:
+                        del playlistarray['playlists'][index]['songs'][songname - 1]
+                  except ValueError:
+                     print("Not valid song number!")
+            except ValueError:
+               print("Invalid playlist number!")
             
          elif (cmd == 'ppl'):
             playlistfuncs.listplaylists()
-            plname = input("Input playlist name > ")
-            if (playlistfuncs.playlistalreadyexists(plname) == False):
-               print("Not valid playlist name!")
-            else:
-               for i in range(len(playlistarray['playlists'])):
-                  if (playlistarray['playlists'][i]['name'] == plname):
-                     index = i
-                     break
-               
-               if (index == -1):
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
                   print("Not valid playlist name!")
                else:
-                  playlistfuncs.listsongs(index)
-                  print("Input bellow is a scale so e.g: 1-5 means form song 1 to 5. Put the same number twice to play 1 song. E.g: 1-1 means play song 1")
-                  songs = input("Input songs > ").replace(" ", "")
-                  songs = songs.split('-')
-                  if (len(songs) > 2):
-                     print("Invalid range!")
+                  if (index > len(playlistarray['playlists'])):
+                     print("Invalid playlist number!")
                   else:
-                     try:
-                        songs[0] = int(songs[0])
-                        songs[1] = int(songs[1])
-
-                        if (songs[0] > songs[1]):
-                           print("Invalid range!")
-                        else:
-                           ara = ""
-
-                           if (songs[0] == songs[1]):
-                              doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
-                           else:
-                              for i in range(songs[1] - songs[0] + 1):
-                                 ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
-                              doplay(ara)
-                              
-                     except ValueError:
+                     playlistfuncs.listsongs(index)
+                     print("Input bellow is a scale so e.g: 1-5 means form song 1 to 5. Put the same number twice to play 1 song. E.g: 1-1 means play song 1")
+                     songs = input("Input songs > ").replace(" ", "")
+                     songs = songs.split('-')
+                     if (len(songs) > 2):
                         print("Invalid range!")
+                     else:
+                        try:
+                           songs[0] = int(songs[0])
+                           songs[1] = int(songs[1])
+
+                           if (songs[0] > songs[1]):
+                              print("Invalid range!")
+                           else:
+                              ara = ""
+
+                              if (songs[0] == songs[1]):
+                                 doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
+                              else:
+                                 for i in range(songs[1] - songs[0] + 1):
+                                    ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
+                                    ara += " "
+                                 doplay(ara)  
+                        except ValueError:
+                           print("Invalid range!")
+            except ValueError:
+               print("Invalid playlist number!")     
 
          else:
             print(cmd + ": Invalid command!")
