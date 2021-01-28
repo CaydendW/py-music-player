@@ -1,0 +1,5 @@
+# Any version works
+argparse
+youtube-search
+
+# Required version
