@@ -43,6 +43,20 @@ class playlistfuncs:
             pass
       return False
 
+   def listplaylists():
+      for i in range(len(playlistarray['playlists'])):
+         print(i + 1, end='')
+         print(". ", end='')
+         print(playlistarray['playlists'][i]['name'])
+
+   def listsongs(index):
+      tw = int(terminal_size()[0])
+      formated = '. %-{a}s %-{b}s %-{c}s %-{d}s'.format(a=int(tw*0.54), b=int(tw*0.2), c=int(tw*0.13), d=int(tw*0.10))
+
+      for i in range(len(playlistarray['playlists'][index]['songs'])):
+         print(i + 1, end='')
+         print(formated % (playlistarray['playlists'][index]['songs'][i]['title'], playlistarray['playlists'][index]['songs'][i]['channel'], playlistarray['playlists'][index]['songs'][i]['views'], playlistarray['playlists'][index]['songs'][i]['duration']))
+
 class cheeckygoto(Exception):
    pass
 
@@ -69,161 +83,170 @@ def mainloop():
       cmdinput = cmdinput.split(' ')
       cmd = cmdinput[0]
 
-      if (cmd == 'h'):
-         dohelp()
+      try:
+         if (cmd == 'h'):
+            dohelp()
 
-      elif (cmd == '?'):
-         if (len(cmdinput) > 1):
-            del cmdinput[0]
-            tmpresarray = dosearchyt(' '.join(cmdinput), results)
-            resarray = tmpresarray['urls']
-            titlearray = tmpresarray['titles']
-            channelarray = tmpresarray['channels']
-            viewarray = tmpresarray['views']
-            durationarray = tmpresarray['durations']
-         else:
-            inp = input("Input search term > ")
-
-            if (inp != ""):
-               tmpresarray = dosearchyt(inp, results)
-               
-               resarray = tmpresarray['urls']
-               titlearray = tmpresarray['titles']
-               channelarray = tmpresarray['channels']
-               viewarray = tmpresarray['views']
-               durationarray = tmpresarray['durations']
-            else:
-               print("Nothing searched!")
-      
-      elif (cmd == '/'):
-         if (len(cmdinput) > 1):
-            del cmdinput[0]
-            tmpresarray = dosearchyt(' '.join(cmdinput), results)
-            resarray = tmpresarray['urls']
-            titlearray = tmpresarray['titles']
-            channelarray = tmpresarray['channels']
-            viewarray = tmpresarray['views']
-            durationarray = tmpresarray['durations']
-         else:
-            inp = input("Input search term > ")
-            
-            if (inp != ""):
-               tmpresarray = dosearchyt(inp, results)
-               
-               resarray = tmpresarray['urls']
-               titlearray = tmpresarray['titles']
-               channelarray = tmpresarray['channels']
-               viewarray = tmpresarray['views']
-               durationarray = tmpresarray['durations']
-            else:
-               print("Nothing searched!")
-
-      elif (cmd == 'p'):
-         if (dotestmusic): dostopmusic()
-
-         currplay = ""
-
-         try:
-            currplay = titlearray[int(cmdinput[1]) - 1]
-
-            doplay(resarray[int(cmdinput[1]) - 1])
-         except IndexError:
-            try:
-               inp1 = input("Input video number > ")
-               inp = resarray[int(inp1) - 1]
-
-               currplay = titlearray[int(inp1) - 1]
-
-               doplay(inp)
-            except IndexError:
-               print("No such video!")
-         except NameError:
-            print("You have not searched anything yet!")
-
-      elif (cmd == 'i'):
-         i = 0
-         tw = int(terminal_size()[0])
-
-         try:
-            if (currplay == "" or dotestmusic() == False):
-               print("Nothing playing\n")
-            else:
-               print("Now playing: " + currplay)
-         except NameError:
-            print("Nothing playing\n")
-
-         try:
-            for i in range (len(titlearray)):
-               formated = '%-{a}s %-{b}s %-{c}s %-{d}s'.format(a=int(tw*0.54), b=int(tw*0.2), c=int(tw*0.13), d=int(tw*0.10))
-
-               print(i+1, end='')
-               print('. ' + formated % (titlearray[i], channelarray[i], viewarray[i], durationarray[i]))
-         except NameError:
-            print("Nothing searched!")
-      
-      elif (cmd == 's'):
-         currplay = ""
-         dostopmusic()
-
-      elif (cmd == 'v'):
-         if (int(cmdinput[1]) > 100 or int(cmdinput[1]) < 0):
-            print("Invalid input. Number too big/small")
-         else:
-            volume = int(cmdinput[1])
-      
-      elif (cmd == 'r'):
-         if (int(cmdinput[1]) > 5):
-            x = input("Are you sure you would like to make it this big. y/n: ")
-            if (x.lower() == 'y'):
-               results = int(cmdinput[1])
-            else:
-               pass
-         elif (int(cmdinput[1]) > 1 and int(cmdinput[1]) < 6):
-            results = int(cmdinput[1])
-         elif (0 >= int(cmdinput[1])):
-            print("Number too small")
-      
-      elif (cmd == 'q'):
-         doexit()
-
-      elif (cmd == 'npl'):
-         try:
+         elif (cmd == '?'):
             if (len(cmdinput) > 1):
                del cmdinput[0]
-               name = ' '.join(cmdinput)
+               tmpresarray = dosearchyt(' '.join(cmdinput), results)
+               resarray = tmpresarray['urls']
+               titlearray = tmpresarray['titles']
+               channelarray = tmpresarray['channels']
+               viewarray = tmpresarray['views']
+               durationarray = tmpresarray['durations']
+
+               doprintsearchinfo()
             else:
-               name = input("Input name > ")
-               if (name == ""):
-                  raise cheeckygoto("Don't mind me")
+               inp = input("Input search term > ")
 
-            if (playlistfuncs.playlistalreadyexists(name)):
-               print("Playlist already exists")
+               if (inp != ""):
+                  tmpresarray = dosearchyt(inp, results)
+                  
+                  resarray = tmpresarray['urls']
+                  titlearray = tmpresarray['titles']
+                  channelarray = tmpresarray['channels']
+                  viewarray = tmpresarray['views']
+                  durationarray = tmpresarray['durations']
+
+                  doprintsearchinfo()
+               else:
+                  print("Nothing searched!")
+         
+         elif (cmd == '/'):
+            if (len(cmdinput) > 1):
+               del cmdinput[0]
+               tmpresarray = dosearchyt(' '.join(cmdinput), results)
+               resarray = tmpresarray['urls']
+               titlearray = tmpresarray['titles']
+               channelarray = tmpresarray['channels']
+               viewarray = tmpresarray['views']
+               durationarray = tmpresarray['durations']
+
+               doprintsearchinfo()
             else:
-               playlistarray['playlists'].append(playlistfuncs.newplaylist(name=name))
+               inp = input("Input search term > ")
+               
+               if (inp != ""):
+                  tmpresarray = dosearchyt(inp, results)
+                  
+                  resarray = tmpresarray['urls']
+                  titlearray = tmpresarray['titles']
+                  channelarray = tmpresarray['channels']
+                  viewarray = tmpresarray['views']
+                  durationarray = tmpresarray['durations']
 
-               f = open("playlists.json", "w")
-               f.write(doserialize(playlistarray))
-               f.close()
-         except cheeckygoto:
-            print("Invalid name!")
+                  doprintsearchinfo()
+               else:
+                  print("Nothing searched!")
 
-      elif (cmd == 'pls'):
-         global index
+         elif (cmd == 'p'):
+            if (dotestmusic): dostopmusic()
 
-         try:
-            plname = input("Input playlist name > ")
-            songname = input("Input song number > ")
+            currplay = ""
 
             try:
-               songname = int(songname)
-               if (songname > len(titlearray) + 1):
-                  raise cheeckygoto("Goto")
-            except ValueError:
-               raise cheeckygoto("Sneaky goto here")
+               currplay = titlearray[int(cmdinput[1]) - 1]
 
-            songname = songname - 1
-            song = playlistfuncs.newsong(resarray[songname], titlearray[songname], channelarray[songname], durationarray[songname], viewarray[songname])
+               doplay(resarray[int(cmdinput[1]) - 1])
+            except IndexError:
+               try:
+                  inp1 = input("Input video number > ")
+                  inp = resarray[int(inp1) - 1]
+
+                  currplay = titlearray[int(inp1) - 1]
+
+                  doplay(inp)
+               except IndexError:
+                  print("No such video!")
+            except NameError:
+               print("You have not searched anything yet!")
+
+         elif (cmd == 'i'):
+            doprintsearchinfo()
+         
+         elif (cmd == 's'):
+            currplay = ""
+            dostopmusic()
+
+         elif (cmd == 'v'):
+            if (int(cmdinput[1]) > 100 or int(cmdinput[1]) < 0):
+               print("Invalid input. Number too big/small")
+            else:
+               volume = int(cmdinput[1])
+         
+         elif (cmd == 'r'):
+            if (int(cmdinput[1]) > 5):
+               x = input("Are you sure you would like to make it this big. y/n: ")
+               if (x.lower() == 'y'):
+                  results = int(cmdinput[1])
+               else:
+                  pass
+            elif (int(cmdinput[1]) > 1 and int(cmdinput[1]) < 6):
+               results = int(cmdinput[1])
+            elif (0 >= int(cmdinput[1])):
+               print("Number too small")
+         
+         elif (cmd == 'q'):
+            doexit()
+
+         elif (cmd == 'npl'):
+            try:
+               if (len(cmdinput) > 1):
+                  del cmdinput[0]
+                  name = ' '.join(cmdinput)
+               else:
+                  name = input("Input name > ")
+                  if (name == ""):
+                     raise cheeckygoto("Don't mind me")
+
+               if (playlistfuncs.playlistalreadyexists(name)):
+                  print("Playlist already exists")
+               else:
+                  playlistarray['playlists'].append(playlistfuncs.newplaylist(name=name))
+            except cheeckygoto:
+               print("Invalid name!")
+
+         elif (cmd == 'pls'):
+            global index
+
+            try:
+               playlistfuncs.listplaylists()
+               plname = input("Input playlist name > ")
+
+               doprintsearchinfo()
+               songname = input("Input song number > ")
+
+               try:
+                  songname = int(songname)
+                  if (songname > len(titlearray) + 1):
+                     raise cheeckygoto("Goto")
+               except ValueError:
+                  raise cheeckygoto("Sneaky goto here")
+
+               songname = songname - 1
+               song = playlistfuncs.newsong(resarray[songname], titlearray[songname], channelarray[songname], durationarray[songname], viewarray[songname])
+               index = -1
+               
+               for i in range(len(playlistarray['playlists'])):
+                  if (playlistarray['playlists'][i]['name'] == plname):
+                     index = i
+                     break
+
+               if (index == -1):
+                  print("Playlist not found!")
+               else:
+                  playlistarray['playlists'][index]['songs'].append(song)
+
+            except cheeckygoto:
+               print("Not a valid song number!")
+
+         elif (cmd == 'dls'):
             index = -1
+
+            playlistfuncs.listplaylists()
+            plname = input("Input playlist name > ")
             
             for i in range(len(playlistarray['playlists'])):
                if (playlistarray['playlists'][i]['name'] == plname):
@@ -233,13 +256,82 @@ def mainloop():
             if (index == -1):
                print("Playlist not found!")
             else:
-               playlistarray['playlists'][index]['songs'].append(song)
+               playlistfuncs.listsongs(index)
 
-         except cheeckygoto:
-            print("Not a valid song number!")
+               try:
+                  songname = int(input("Input song number > "))
+                  if (songname - 1 > len(playlistarray['playlists'][index]['songs'])):
+                     print("Not a valid song number!")
+                  else:
+                     del playlistarray['playlists'][index]['songs'][songname - 1]
+               except ValueError:
+                  print("Not valid song number!")
+            
+         elif (cmd == 'ppl'):
+            playlistfuncs.listplaylists()
+            plname = input("Input playlist name > ")
+            if (playlistfuncs.playlistalreadyexists(plname) == False):
+               print("Not valid playlist name!")
+            else:
+               for i in range(len(playlistarray['playlists'])):
+                  if (playlistarray['playlists'][i]['name'] == plname):
+                     index = i
+                     break
+               
+               if (index == -1):
+                  print("Not valid playlist name!")
+               else:
+                  playlistfuncs.listsongs(index)
+                  print("Input bellow is a scale so e.g: 1-5 means form song 1 to 5. Put the same number twice to play 1 song. E.g: 1-1 means play song 1")
+                  songs = input("Input songs > ").replace(" ", "")
+                  songs = songs.split('-')
+                  if (len(songs) > 2):
+                     print("Invalid range!")
+                  else:
+                     try:
+                        songs[0] = int(songs[0])
+                        songs[1] = int(songs[1])
 
+                        if (songs[0] > songs[1]):
+                           print("Invalid range!")
+                        else:
+                           ara = ""
+
+                           if (songs[0] == songs[1]):
+                              doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
+                           else:
+                              for i in range(songs[1] - songs[0] + 1):
+                                 ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
+                              doplay(ara)
+                              
+                     except ValueError:
+                        print("Invalid range!")
+
+         else:
+            print(cmd + ": Invalid command!")
+      except KeyboardInterrupt:
+         print("\n")
+
+def doprintsearchinfo():
+   i = 0
+   tw = int(terminal_size()[0])
+
+   try:
+      if (currplay == "" or dotestmusic() == False):
+         print("Nothing playing\n")
       else:
-         print(cmd + ": Invalid command!")
+         print("Now playing: " + currplay)
+   except NameError:
+      print("Nothing playing\n")
+
+   try:
+      for i in range (len(titlearray)):
+         formated = '%-{a}s %-{b}s %-{c}s %-{d}s'.format(a=int(tw*0.54), b=int(tw*0.2), c=int(tw*0.13), d=int(tw*0.10))
+
+         print(i+1, end='')
+         print('. ' + formated % (titlearray[i], channelarray[i], viewarray[i], durationarray[i]))
+   except NameError:
+      print("Nothing searched!")
 
 def doserialize(inp):
    return json.dumps(inp, indent=3)
@@ -248,12 +340,13 @@ def dodeserialize(inp):
    return json.loads(inp)
 
 def dohelp():
-   keys = ["h", "s", "i", "q", "?", "/", "p", "v", "r", "npl", "pls"]
+   keys = ["h", "s", "i", "q", "?", "/", "p", "v", "r", "npl", "pls", "dls", "ppl"]
    func = ["Print this help list", "Stop current song", "Print current info about current song and music stack", "Exit the program",
    "Search for a specific term and add the results to the stack", "Same as ? (Search for song. Add to stack)", "Play Song",
-   "Set volume in percent ", "Set result amount (Warning more results = slower search)", "Add a new playlist", "Add song to playlist"]
+   "Set volume in percent ", "Set result amount (Warning more results = slower search)", "Add a new playlist", "Add song to playlist", "Remove song from playlist",
+   "Play playlist in linear fashion."]
    args = ["NONE", "NONE", "NONE", "NONE", "Search term (String)", "Search term (String)", "Number of song (Int)", "Int (0 - 100)", "Int",
-   "Name (String)", "NONE (Hit enter and it will prompt you)"]
+   "Name (String)", "NONE (Hit enter and it will prompt you)", "NONE (Hit enter and it will prompt you)", "NONE (Will prompt you)"]
 
    tw = terminal_size()[0]
    formated = '   %-{a}s %-{b}s %-{c}s'.format(a=int(tw*0.05), b=int(tw*0.7), c=int(tw*0.20))
