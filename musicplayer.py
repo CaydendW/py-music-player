@@ -38,7 +38,6 @@ class playlistfuncs:
       for i in range(len(playlistarray['playlists'])):
          if (playlistarray['playlists'][i]['name'] == name):
             return True
-            break
          else:
             pass
       return False
@@ -160,6 +159,8 @@ def mainloop():
                   doplay(inp)
                except IndexError:
                   print("No such video!")
+            except ValueError:
+               print("Invalid number!")
             except NameError:
                print("You have not searched anything yet!")
 
