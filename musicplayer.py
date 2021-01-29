@@ -2,6 +2,7 @@ try:
    import os
    import json
    import fcntl
+   import random
    import struct
    import termios
    import argparse
@@ -268,38 +269,88 @@ def mainloop():
             try:
                index = int(index) -1
                if (index > len(playlistarray['playlists'])):
-                  print("Not valid playlist name!")
+                  print("Invalid playlist number!")
                else:
-                  if (index > len(playlistarray['playlists'])):
-                     print("Invalid playlist number!")
+                  playlistfuncs.listsongs(index)
+                  print("Input bellow is a scale so e.g: 1-5 means form song 1 to 5. Put the same number twice to play 1 song. E.g: 1-1 means play song 1")
+                  songs = input("Input songs > ").replace(" ", "")
+                  songs = songs.split('-')
+                  if (len(songs) > 2):
+                     print("Invalid range!")
                   else:
-                     playlistfuncs.listsongs(index)
-                     print("Input bellow is a scale so e.g: 1-5 means form song 1 to 5. Put the same number twice to play 1 song. E.g: 1-1 means play song 1")
-                     songs = input("Input songs > ").replace(" ", "")
-                     songs = songs.split('-')
-                     if (len(songs) > 2):
-                        print("Invalid range!")
-                     else:
-                        try:
-                           songs[0] = int(songs[0])
-                           songs[1] = int(songs[1])
+                     try:
+                        songs[0] = int(songs[0])
+                        songs[1] = int(songs[1])
 
-                           if (songs[0] > songs[1]):
-                              print("Invalid range!")
-                           else:
-                              ara = ""
-
-                              if (songs[0] == songs[1]):
-                                 doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
-                              else:
-                                 for i in range(songs[1] - songs[0] + 1):
-                                    ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
-                                    ara += " "
-                                 doplay(ara)  
-                        except ValueError:
+                        if (songs[0] > songs[1]):
                            print("Invalid range!")
+                        else:
+                           ara = ""
+
+                           if (songs[0] == songs[1]):
+                              doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
+                           else:
+                              for i in range(songs[1] - songs[0] + 1):
+                                 ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
+                                 ara += " "
+                              doplay(ara)  
+                     except ValueError:
+                        print("Invalid range!")
             except ValueError:
-               print("Invalid playlist number!")     
+               print("Invalid playlist number!")
+
+         elif (cmd == 'rls'):
+            playstring = ""
+            tmparray = playlistarray['playlists'][index]['songs']
+            array = [0] * len(tmparray)
+
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  for i in range(len(tmparray)):
+                     array[i] = tmparray[i]['url']
+
+                  random.shuffle(array)
+
+                  for song in array:
+                     playstring += song + " "
+                  
+                  doplay(playstring)
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'rls'):
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  del playlistarray['playlists'][index]
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'lss'):
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  playlistfuncs.listsongs(index)
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'lsp'):
+            playlistfuncs.listplaylists()
 
          else:
             print(cmd + ": Invalid command!")
@@ -334,13 +385,14 @@ def dodeserialize(inp):
    return json.loads(inp)
 
 def dohelp():
-   keys = ["h", "s", "i", "q", "?", "/", "p", "v", "r", "npl", "pls", "dls", "ppl"]
+   keys = ["h", "s", "i", "q", "?", "/", "p", "v", "r", "npl", "pls", "dls", "ppl", "rps", "rls", "lss", "lsp"]
    func = ["Print this help list", "Stop current song", "Print current info about current song and music stack", "Exit the program",
    "Search for a specific term and add the results to the stack", "Same as ? (Search for song. Add to stack)", "Play Song",
    "Set volume in percent ", "Set result amount (Warning more results = slower search)", "Add a new playlist", "Add song to playlist", "Remove song from playlist",
-   "Play playlist in linear fashion."]
+   "Play playlist in linear fashion.", "Play playlist in random order", "Delete playlist", "List songs in playlist", "List playlists"]
    args = ["NONE", "NONE", "NONE", "NONE", "Search term (String)", "Search term (String)", "Number of song (Int)", "Int (0 - 100)", "Int",
-   "Name (String)", "NONE (Hit enter and it will prompt you)", "NONE (Hit enter and it will prompt you)", "NONE (Will prompt you)"]
+   "Name (String)", "NONE (Hit enter and it will prompt you)", "NONE (Hit enter and it will prompt you)", "NONE (Will prompt you)", "NONE (Will prompt you)", 
+   "NONE (Will prompt you)", "NONE (Will prompt you)", "NONE"]
 
    tw = terminal_size()[0]
    formated = '   %-{a}s %-{b}s %-{c}s'.format(a=int(tw*0.05), b=int(tw*0.7), c=int(tw*0.20))
