@@ -66,9 +66,9 @@ def mainloop():
    global durationarray
    global viewarray
    global channelarray
-   global currplay
    global volume
    global results
+   global videobool
 
    clear()
 
@@ -144,18 +144,12 @@ def mainloop():
          elif (cmd == 'p'):
             if (dotestmusic): dostopmusic()
 
-            currplay = ""
-
             try:
-               currplay = titlearray[int(cmdinput[1]) - 1]
-
                doplay(resarray[int(cmdinput[1]) - 1])
             except IndexError:
                try:
                   inp1 = input("Input video number > ")
                   inp = resarray[int(inp1) - 1]
-
-                  currplay = titlearray[int(inp1) - 1]
 
                   doplay(inp)
                except IndexError:
@@ -169,7 +163,6 @@ def mainloop():
             doprintsearchinfo()
          
          elif (cmd == 's'):
-            currplay = ""
             dostopmusic()
 
          elif (cmd == 'v'):
@@ -285,21 +278,24 @@ def mainloop():
                         if (songs[0] > songs[1]):
                            print("Invalid range!")
                         else:
-                           ara = ""
-
-                           if (songs[0] == songs[1]):
-                              doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
+                           if (songs[0] < 1 or songs[1] > len(playlistarray['playlists'][index]['songs'])):
+                              print("Invalid range")
                            else:
-                              for i in range(songs[1] - songs[0] + 1):
-                                 ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
-                                 ara += " "
-                              doplay(ara)  
+                              ara = ""
+
+                              if (songs[0] == songs[1]):
+                                 doplay(playlistarray['playlists'][index]['songs'][songs[0] - 1]['url'])
+                              else:
+                                 for i in range(songs[1] - songs[0] + 1):
+                                    ara += playlistarray['playlists'][index]['songs'][i + songs[0] - 1]['url']
+                                    ara += " "
+                                 doplay(ara)  
                      except ValueError:
                         print("Invalid range!")
             except ValueError:
                print("Invalid playlist number!")
 
-         elif (cmd == 'rls'):
+         elif (cmd == 'rps'):
             playstring = ""
             tmparray = playlistarray['playlists'][index]['songs']
             array = [0] * len(tmparray)
@@ -352,6 +348,133 @@ def mainloop():
          elif (cmd == 'lsp'):
             playlistfuncs.listplaylists()
 
+         elif (cmd == 'rar'):
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  playlistfuncs.listsongs(index)
+                  print("Input bellow is a scale so e.g: 1-5 means move song 1 to position 5 and song 5 to position 1")
+                  songs = input("Input songs > ").replace(" ", "")
+                  songs = songs.split('-')
+                  if (len(songs) > 2):
+                     print("Invalid range!")
+                  else:
+                     try:
+                        songs[0] = int(songs[0])
+                        songs[1] = int(songs[1])
+
+                        if (songs[0] < 1 or songs[1] > len(playlistarray['playlists'][index]['songs'])):
+                           print("Invalid range")
+                        else:
+                           latterindex = playlistarray['playlists'][index]['songs'][songs[1] - 1]
+                           formerindex = playlistarray['playlists'][index]['songs'][songs[0] - 1]
+
+                           playlistarray['playlists'][index]['songs'][songs[1] - 1] = formerindex
+                           playlistarray['playlists'][index]['songs'][songs[0] - 1] = latterindex
+                     except ValueError:
+                        print("Invalid range!")
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'lppl'):
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  ara = ""
+                  for i in range(len(playlistarray['playlists'][index]['songs'])):
+                     ara += playlistarray['playlists'][index]['songs'][i]['url']
+                     ara += " "
+                  doplayloop(ara)  
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'lplo'):
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  playlistfuncs.listsongs(index)
+                  sindex = input("Input song index >")
+                  try:
+                     sindex = int(index) -1
+                     if (sindex < 1 or sindex > len(playlistarray['playlists'][index]['songs'])):
+                        print("Invalid song!")
+                     else:
+                        doplayloop(playlistarray['playlists'][index]['songs'][sindex]['url']) 
+                  except ValueError:
+                     print("invalid input") 
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'lspl'):
+            playlistfuncs.listplaylists()
+            index = input("Input playlist name > ")
+
+            try:
+               index = int(index) -1
+               if (index > len(playlistarray['playlists'])):
+                  print("Invalid playlist number!")
+               else:
+                  ara = ""
+                  for i in range(len(playlistarray['playlists'][index]['songs'])):
+                     ara += playlistarray['playlists'][index]['songs'][i]['url']
+                     ara += " "
+                  doplayloopshuffle(ara) 
+            except ValueError:
+               print("Invalid playlist number!")
+
+         elif (cmd == 'lp'):
+            if (dotestmusic): dostopmusic()
+
+            try:
+               doplayloop(resarray[int(cmdinput[1]) - 1])
+            except IndexError:
+               try:
+                  inp1 = input("Input video number > ")
+                  inp = resarray[int(inp1) - 1]
+
+                  doplayloop(inp)
+               except IndexError:
+                  print("No such video!")
+            except ValueError:
+               print("Invalid number!")
+            except NameError:
+               print("You have not searched anything yet!")
+
+         elif (cmd == 'ifl'):
+            if (len(cmdinput) > 1):
+               del cmdinput[0]
+               tmpresarray = dosearchyt(' '.join(cmdinput), 1)
+               doplay(tmpresarray['urls'][0])
+            else:
+               inp = input("Input search term > ")
+               
+               if (inp != ""):
+                  tmpresarray = dosearchyt(inp, 1)
+                  doplay(tmpresarray['urls'][0])
+               else:
+                  print("Nothing searched!")
+
+         elif (cmd == 'vi'):
+            if (videobool):
+               videobool = False
+            else:
+               videobool = True
+
          else:
             print(cmd + ": Invalid command!")
       except KeyboardInterrupt:
@@ -360,14 +483,6 @@ def mainloop():
 def doprintsearchinfo():
    i = 0
    tw = int(terminal_size()[0])
-
-   try:
-      if (currplay == "" or dotestmusic() == False):
-         print("Nothing playing\n")
-      else:
-         print("Now playing: " + currplay)
-   except NameError:
-      print("Nothing playing\n")
 
    try:
       for i in range (len(titlearray)):
@@ -385,14 +500,17 @@ def dodeserialize(inp):
    return json.loads(inp)
 
 def dohelp():
-   keys = ["h", "s", "i", "q", "?", "/", "p", "v", "r", "npl", "pls", "dls", "ppl", "rps", "rls", "lss", "lsp"]
+   keys = ["h", "s", "i", "q", "?", "/", "p", "v", "r", "npl", "pls", "dls", "ppl", "rps", "rls", "lss", "lsp", "rar", "lppl", "lplo", "lspl", "lp", "ifl", "vi"]
    func = ["Print this help list", "Stop current song", "Print current info about current song and music stack", "Exit the program",
-   "Search for a specific term and add the results to the stack", "Same as ? (Search for song. Add to stack)", "Play Song",
+   "Search for a specific term and add the results to the stack", "Same as ? (Search for song. Add to stack)", "Play song from search",
    "Set volume in percent ", "Set result amount (Warning more results = slower search)", "Add a new playlist", "Add song to playlist", "Remove song from playlist",
-   "Play playlist in linear fashion.", "Play playlist in random order", "Delete playlist", "List songs in playlist", "List playlists"]
+   "Play playlist in linear fashion.", "Play playlist in random order", "Delete playlist", "List songs in playlist", "List playlists", "Rearrange playlists",
+   "Loop playlist linearly", "Loop individual song in playlist", "Loop playlist in random order",
+   "Loop song from search", "I'm felling lucky serach. seacrh and play the first result", "Toggle video"]
    args = ["NONE", "NONE", "NONE", "NONE", "Search term (String)", "Search term (String)", "Number of song (Int)", "Int (0 - 100)", "Int",
    "Name (String)", "NONE (Hit enter and it will prompt you)", "NONE (Hit enter and it will prompt you)", "NONE (Will prompt you)", "NONE (Will prompt you)", 
-   "NONE (Will prompt you)", "NONE (Will prompt you)", "NONE"]
+   "NONE (Will prompt you)", "NONE (Will prompt you)", "NONE", "NONE (Will be prompted)", "NONE (Will be prompted)", "NONE (Will be prompted)",
+   "NONE (Will be prompted)", "Number of song (Int)", "Search term (String)", "NONE"]
 
    tw = terminal_size()[0]
    formated = '   %-{a}s %-{b}s %-{c}s'.format(a=int(tw*0.05), b=int(tw*0.7), c=int(tw*0.20))
@@ -411,6 +529,18 @@ def doplay(url):
       subprocess.Popen("nohup mpv --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
    else:
       subprocess.Popen("nohup mpv --no-video --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
+
+def doplayloop(url):
+   if (videobool):
+      subprocess.Popen("nohup mpv --loop-playlist --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
+   else:
+      subprocess.Popen("nohup mpv --loop-playlist --no-video --really-quiet --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
+
+def doplayloopshuffle(url):
+   if (videobool):
+      subprocess.Popen("nohup mpv --loop-playlist --really-quiet --shuffle --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
+   else:
+      subprocess.Popen("nohup mpv --loop-playlist --no-video --really-quiet --shuffle --volume=" + str(volume) + " " + url + " >/dev/null 2>&1 &", shell=True)
 
 def dostopmusic():
    os.system("killall mpv >/dev/null 2>&1")
